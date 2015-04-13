@@ -20,7 +20,7 @@ void loop()
 		pulseColor();
       break;
     case 2:
-		pulseColor2();
+		pulseRandomColor();
       break;
 	case 3:
 		controlColor();
@@ -151,46 +151,91 @@ void pulseColor()
 	currentTask = 2;
 }
 
-void pulseColor2()
+//*******************************************
+// Pulse - Out and In
+//*******************************************
+
+const int totalPulses = 5;
+const byte maxBrightness = 40;
+const byte minBrightness = 1;
+const byte steps = 2;
+const int stepDelay = 50;
+
+
+void pulseRed()
 {
-	byte red = random(1, 255);
-	byte green = random(1, 255);
-	byte blue = random(1, 255);
+	byte red = 255;
+	byte green = 0;
+	byte blue = 0;
 	
+	pulse(red, green, blue);
+}
+
+void pulseGreen()
+{
+	byte red = 0;
+	byte green = 255;
+	byte blue = 0;
+	
+	pulse(red, green, blue);
+}
+
+void pulseBlue()
+{
+	byte red = 0;
+	byte green = 0;
+	byte blue = 255;
+	
+	pulse(red, green, blue);
+}
+
+void pulseRandomColor()
+{
+	byte red = randomColor();
+	byte green = randomColor();
+	byte blue = randomColor();
+	
+	pulse(red, green, blue);
+}
+
+void pulse(byte red, byte green, byte blue)
+{	
 	for(int i = 0; i< NUMPIXELS; i++)
 	{
 		pixels.setPixelColor(i, pixels.Color(red,green,blue)); 
 	}
-	
-	byte maxBrightness = 40;
-	byte minBrightness = 1;
-	byte steps = 2;
-	
-	
-	int totalPulses = 5;
-	
+		
 	for(int i = 0; i < totalPulses; i++)
 	{	
+		//Pulse up
 		int currentBrightness = minBrightness;
 		while(currentBrightness <= maxBrightness)
 		{
 			pixels.setBrightness(currentBrightness);
 			pixels.show(); 
 			
-			delay(50); 
+			delay(stepDelay); 
 			
 			currentBrightness += steps;
 		}
 		
+		//Pulse down
+		currentBrightness = maxBrightness;
+		while(currentBrightness >= minBrightness)
+		{
+			pixels.setBrightness(currentBrightness);
+			pixels.show(); 
+			
+			delay(stepDelay); 
+			
+			currentBrightness -= steps;
+		}
+		
 	}
-	
-	currentTask = 0;
 }
 
 /*
 
-- Random color for each led and rotate
 - start 2 colors at top and "fall" down and crash into each other at bottom
-- pulse a random color (like a heart beat)
 
 */
