@@ -14,6 +14,7 @@ struct led
 	
 const int maxColorValue = 255;
 const int minColorValue = 10;
+const int globalBrightness = 30;
 	
 void setup()
 {
@@ -48,7 +49,6 @@ const int redPin = A2;
 const int greenPin = A3;
 const int bluePin = A4;
 
-const int globalBrightness = 30;
 
 void controlColorTest()
 {
@@ -92,7 +92,6 @@ void setGlobalColorWithControls()
 const int ledsToLight = 8;
 const int timesToSpin = 2;
 const int delayDuringSpin = 200;
-
 
 void randomColorsAndSpin()
 {
@@ -214,7 +213,7 @@ void pulse(byte red, byte green, byte blue)
 		
 	for(int i = 0; i < totalPulses; i++)
 	{	
-		//Pulse up
+		//Pulse out
 		int currentBrightness = minBrightness;
 		while(currentBrightness <= maxBrightness)
 		{
@@ -226,7 +225,7 @@ void pulse(byte red, byte green, byte blue)
 			currentBrightness += steps;
 		}
 		
-		//Pulse down
+		//Pulse in
 		currentBrightness = maxBrightness;
 		while(currentBrightness >= minBrightness)
 		{
