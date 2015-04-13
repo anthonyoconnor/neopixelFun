@@ -34,9 +34,11 @@ byte randomColor()
   return random(10, 255);
 }
 
-int const redPin = A2;
-int const greenPin = A3;
-int const bluePin = A4;
+const int redPin = A2;
+const int greenPin = A3;
+const int bluePin = A4;
+
+const int globalBrightness = 30;
 
 void controlColor()
 {
@@ -59,6 +61,14 @@ void controlColor()
 
 
 
+//*******************************************
+// Random Colors and Spin
+//*******************************************
+
+const int ledsToLight = 8;
+const int timesToSpin = 2;
+const int delayDuringSpin = 200;
+
 void randomColorsAndSpin()
 {
 	struct led
@@ -71,7 +81,7 @@ void randomColorsAndSpin()
 	led leds[NUMPIXELS];
 	for(int i = 0; i< NUMPIXELS; i++)
 	{
-		if(i <= NUMPIXELS/2)
+		if(i <= ledsToLight)
 		{
 			leds[i].r = randomColor();
 			leds[i].g = randomColor();
@@ -79,23 +89,28 @@ void randomColorsAndSpin()
 		}
 		else
 		{
-		leds[i].r = leds[i].g = leds[i].b = 0;
+			leds[i].r = leds[i].g = leds[i].b = 0;
 		}
 	}
-	
-	for(int i = 0; i< NUMPIXELS; i++)
+	for(int spin = 0; spin <timesToSpin; spin++)
 	{
-		for(int j = 0; j< NUMPIXELS; j++)
+		for(int i = 0; i< NUMPIXELS; i++)
 		{
-			int pixel = j - i;
-			if(pixel < 0)
-				pixel += NUMPIXELS;
-			pixels.setPixelColor(pixel, pixels.Color(leds[j].r,leds[j].g,leds[j].b)); 
-		}
-		
-			pixels.setBrightness(50);
+			for(int j = 0; j< NUMPIXELS; j++)
+			{
+				int pixel = j - i;
+				if(pixel < 0)
+				{
+					pixel += NUMPIXELS;
+				}
+				
+				pixels.setPixelColor(pixel, pixels.Color(leds[j].r,leds[j].g,leds[j].b)); 
+			}
+			
+			pixels.setBrightness(globalBrightness);
 			pixels.show(); 
-			delay(200); 
+			delay(delayDuringSpin); 
+		}
 	}
 }
 
@@ -117,7 +132,7 @@ void randomColorsForAllLeds()
 			pixels.setPixelColor(i, pixels.Color(randomColor(),randomColor(),randomColor())); 
 		}
 		
-		pixels.setBrightness(50);
+		pixels.setBrightness(globalBrightness);
 		pixels.show(); 
 		
 		delay(timeBetweenCycles); 
@@ -135,7 +150,6 @@ const byte maxBrightness = 40;
 const byte minBrightness = 1;
 const byte steps = 2;
 const int stepDelay = 50;
-
 
 void pulseRed()
 {
@@ -204,8 +218,7 @@ void pulse(byte red, byte green, byte blue)
 			delay(stepDelay); 
 			
 			currentBrightness -= steps;
-		}
-		
+		}	
 	}
 }
 
