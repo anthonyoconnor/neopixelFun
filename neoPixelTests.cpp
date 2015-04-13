@@ -5,6 +5,16 @@
 
 Adafruit_NeoPixel pixels = Adafruit_NeoPixel(NUMPIXELS, PIN, NEO_GRB + NEO_KHZ800);
 
+struct led
+{
+	byte r;
+	byte g;
+	byte b;
+};
+	
+const int maxColorValue = 255;
+const int minColorValue = 10;
+	
 void setup()
 {
 	Serial.begin(9600);
@@ -31,7 +41,7 @@ void doNothing()
 
 byte randomColor()
 {
-  return random(10, 255);
+  return random(minColorValue, maxColorValue);
 }
 
 const int redPin = A2;
@@ -40,23 +50,37 @@ const int bluePin = A4;
 
 const int globalBrightness = 30;
 
-void controlColor()
+void controlColorTest()
 {
 	int redVal = analogRead(redPin);
 	int greenVal = analogRead(greenPin);
 	int blueVal = analogRead(bluePin);
 
-	int setRed = map(redVal, 0, 1023, 10, 255);
-	int setBlue = map(blueVal, 0, 1023, 10, 255);
-	int setGreen = map(greenVal, 0, 1023, 10, 255);
+	int setRed = map(redVal, 0, 1023, minColorValue, maxColorValue);
+	int setBlue = map(blueVal, 0, 1023, minColorValue, maxColorValue);
+	int setGreen = map(greenVal, 0, 1023, minColorValue, maxColorValue);
 	
 	for(int i = 0; i< NUMPIXELS; i++)
 	{
 		pixels.setPixelColor(i, pixels.Color(setRed,setGreen,setBlue)); 
 	}
 	
-	pixels.setBrightness(25);
+	pixels.setBrightness(globalBrightness);
 	pixels.show(); 
+}
+
+led globalColor;
+
+void setGlobalColorWithControls()
+{
+	int redVal = analogRead(redPin);
+	int greenVal = analogRead(greenPin);
+	int blueVal = analogRead(bluePin);
+
+	globalColor.r = map(redVal, 0, 1023, minColorValue, maxColorValue);
+	globalColor.b = map(blueVal, 0, 1023, minColorValue, maxColorValue);
+	globalColor.g = map(greenVal, 0, 1023, minColorValue, maxColorValue);
+	
 }
 
 
@@ -69,15 +93,9 @@ const int ledsToLight = 8;
 const int timesToSpin = 2;
 const int delayDuringSpin = 200;
 
+
 void randomColorsAndSpin()
 {
-	struct led
-	{
-		byte r;
-		byte g;
-		byte b;
-	};
-
 	led leds[NUMPIXELS];
 	for(int i = 0; i< NUMPIXELS; i++)
 	{
@@ -121,7 +139,7 @@ void randomColorsAndSpin()
 //*******************************************
 
 const int totalCycles = 5;
-const int timeBetweenCycles = 1000;
+const int timeBetweenCycles = 100;
 
 void randomColorsForAllLeds()
 {
@@ -153,7 +171,7 @@ const int stepDelay = 50;
 
 void pulseRed()
 {
-	byte red = 255;
+	byte red = maxColorValue;
 	byte green = 0;
 	byte blue = 0;
 	
@@ -163,7 +181,7 @@ void pulseRed()
 void pulseGreen()
 {
 	byte red = 0;
-	byte green = 255;
+	byte green = maxColorValue;
 	byte blue = 0;
 	
 	pulse(red, green, blue);
@@ -173,7 +191,7 @@ void pulseBlue()
 {
 	byte red = 0;
 	byte green = 0;
-	byte blue = 255;
+	byte blue = maxColorValue;
 	
 	pulse(red, green, blue);
 }
