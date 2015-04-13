@@ -101,55 +101,31 @@ void randomColorsAndSpin()
 }
 
 
+
+//*******************************************
+// Cycling Random Colors on all LEDS 
+//*******************************************
+
+const int totalCycles = 5;
+const int timeBetweenCycles = 1000;
+
 void randomColorsForAllLeds()
 {
-	for(int i = 0; i< NUMPIXELS; i++)
+	for(int count = 0; count < totalCycles; count++)
 	{
-		pixels.setPixelColor(i, pixels.Color(randomColor(),randomColor(),randomColor())); 
-	}
-	
-	pixels.setBrightness(50);
-	pixels.show(); 
-	
-	delay(1000); 
-}
-
-
-
-void pulseColor()
-{
-	pixels.setBrightness(40);
-	byte green = 0; //random(255);
-	byte blue = 0; //random(255);
-	byte maxBrightness = 255;
-	byte minBrightness = 0;
-	byte steps = 10;
-	
-	
-	int totalPulses = 5;
-	
-	for(int i = 0; i < totalPulses; i++)
-	{	
-		int currentBrightness = minBrightness;
-		while(currentBrightness < maxBrightness)
+		for(int i = 0; i< NUMPIXELS; i++)
 		{
- 
-		for(int j = 0; j< NUMPIXELS; j++)
-		{
-			pixels.setPixelColor(j, pixels.Color(currentBrightness,green,blue)); 
-		}
-	
-			pixels.show(); 
-			
-			delay(50); 
-			
-			currentBrightness += steps;
+			pixels.setPixelColor(i, pixels.Color(randomColor(),randomColor(),randomColor())); 
 		}
 		
+		pixels.setBrightness(50);
+		pixels.show(); 
+		
+		delay(timeBetweenCycles); 
 	}
-	
-	currentTask = 2;
 }
+
+
 
 //*******************************************
 // Pulse - Out and In
