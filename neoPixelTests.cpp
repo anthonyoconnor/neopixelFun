@@ -17,17 +17,16 @@ void loop()
 {
 	switch (currentTask) {
     case 1:
-		pulseColor();
-      break;
-    case 2:
-		pulseRandomColor();
-      break;
-	case 3:
-		controlColor();
+		doNothing();
       break;
     default: 
-      randomColorsAndSpin();
+      doNothing();
   }
+}
+
+void doNothing()
+{
+	
 }
 
 byte randomColor()
