@@ -33,6 +33,9 @@ void loop()
     default: 
       doNothing();
   }
+  
+  setGlobalColorWithControls();
+  spin();
 }
 
 void doNothing()
@@ -80,10 +83,49 @@ void setGlobalColorWithControls()
 	globalColor.r = map(redVal, 0, 1023, minColorValue, maxColorValue);
 	globalColor.b = map(blueVal, 0, 1023, minColorValue, maxColorValue);
 	globalColor.g = map(greenVal, 0, 1023, minColorValue, maxColorValue);
-	
 }
 
+//*******************************************
+// Spin Control
+//*******************************************
 
+const int speedPin = A5;
+int direction = 1;
+int lastPosition = 0;
+const int minSpeed = 0;
+const int maxSpeed = 0;
+
+const int slowest = 200;
+const int fastest = 20;
+unsigned long previousTime = 0;
+void spin()
+{
+	unsigned long currentTime = millis();
+	
+	int speedVal = analogRead(bluePin);
+	int moveTime = map(speedVal, 0, 1023, slowest, fastest);
+        Serial.println(moveTime);
+		
+	for(int i = 0; i< NUMPIXELS; i++)
+	{
+		pixels.setPixelColor(i, pixels.Color(0,0,0)); 
+	}
+	
+	pixels.setPixelColor(lastPosition, pixels.Color(globalColor.r,globalColor.g,globalColor.b)); 
+
+    pixels.setBrightness(globalBrightness);
+	pixels.show(); 
+	
+	if(currentTime - previousTime > moveTime && moveTime != slowest)
+	{
+		previousTime = currentTime;
+		lastPosition += direction;
+		if(lastPosition >= NUMPIXELS || lastPosition < 0)
+		{
+			lastPosition -= (NUMPIXELS * direction);
+		}
+	}
+}
 
 //*******************************************
 // Random Colors and Spin
@@ -91,7 +133,7 @@ void setGlobalColorWithControls()
 
 const int ledsToLight = 8;
 const int timesToSpin = 2;
-const int delayDuringSpin = 200;
+const int delayDuringRandomColorsSpin = 100;
 
 void randomColorsAndSpin()
 {
@@ -126,7 +168,7 @@ void randomColorsAndSpin()
 			
 			pixels.setBrightness(globalBrightness);
 			pixels.show(); 
-			delay(delayDuringSpin); 
+			delay(delayDuringRandomColorsSpin); 
 		}
 	}
 }
@@ -163,8 +205,8 @@ void randomColorsForAllLeds()
 //*******************************************
 
 const int totalPulses = 5;
-const byte maxBrightness = 40;
-const byte minBrightness = 1;
+const byte maxBrightness = 30;
+const byte minBrightness = 5;
 const byte steps = 2;
 const int stepDelay = 50;
 
@@ -205,18 +247,17 @@ void pulseRandomColor()
 }
 
 void pulse(byte red, byte green, byte blue)
-{	
-	for(int i = 0; i< NUMPIXELS; i++)
-	{
-		pixels.setPixelColor(i, pixels.Color(red,green,blue)); 
-	}
-		
+{			
 	for(int i = 0; i < totalPulses; i++)
 	{	
 		//Pulse out
 		int currentBrightness = minBrightness;
 		while(currentBrightness <= maxBrightness)
 		{
+			for(int i = 0; i< NUMPIXELS; i++)
+			{
+				pixels.setPixelColor(i, pixels.Color(red,green,blue)); 
+			}
 			pixels.setBrightness(currentBrightness);
 			pixels.show(); 
 			
@@ -229,6 +270,10 @@ void pulse(byte red, byte green, byte blue)
 		currentBrightness = maxBrightness;
 		while(currentBrightness >= minBrightness)
 		{
+			for(int i = 0; i< NUMPIXELS; i++)
+			{
+				pixels.setPixelColor(i, pixels.Color(red,green,blue)); 
+			}
 			pixels.setBrightness(currentBrightness);
 			pixels.show(); 
 			
