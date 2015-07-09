@@ -44,7 +44,7 @@ void blankPixels()
 }
 
 bool redButtonPressed = false;
-byte MAXTASKS = 6;
+byte MAXTASKS = 7;
 byte currentTask = 0;
 byte oldTask = 0;
 void loop()
@@ -71,6 +71,9 @@ void loop()
     pulseBlue();
     break;
   case 6:
+    quarterSpin();
+    break;
+  case 7:
     pulseGreen();
     break;
   default:
@@ -384,8 +387,58 @@ void pulse(byte red, byte green, byte blue)
   }
 }
 
-/*
+//*******************************************
+// Quarter Spin - 4 colours (1 per quarter) and spin them
+//*******************************************
 
-- start 2 colors at top and "fall" down and crash into each other at bottom
+void quarterSpin()
+{
+  led leds[NUMPIXELS];
+  for (int i = 0; i< NUMPIXELS; i++)
+  {
+    if (i >= 0 && i < 4)
+    {
+      leds[i].r = maxColorValue;
+      leds[i].g = 0;
+      leds[i].b = 0;
+    }
+    if (i >= 4 && i < 8)
+    {
+      leds[i].r = 0;
+      leds[i].g = maxColorValue;
+      leds[i].b = 0;
+    }
+    if (i >= 8 && i < 12)
+    {
+      leds[i].r = 0;
+      leds[i].g = 0;
+      leds[i].b = maxColorValue;
+    }
+    if (i >= 12 && i < 16)
+    {
+      leds[i].r = maxColorValue;
+      leds[i].g = maxColorValue;
+      leds[i].b = maxColorValue;
+    }
+  }
+  for (int spin = 0; spin <timesToSpin; spin++)
+  {
+    for (int i = 0; i< NUMPIXELS; i++)
+    {
+      for (int j = 0; j< NUMPIXELS; j++)
+      {
+        int pixel = j + (i * direction);
+        if (pixel < 0 || pixel >= NUMPIXELS) 
+        {
+          pixel -= (NUMPIXELS * direction);
+        }
 
-*/
+        pixels.setPixelColor(pixel, pixels.Color(leds[j].r, leds[j].g, leds[j].b));
+      }
+
+      pixels.setBrightness(globalBrightness);
+      pixels.show();
+      delay(delayDuringRandomColorsSpin);
+    }
+  }
+}
