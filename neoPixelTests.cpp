@@ -1,95 +1,140 @@
 #include <Adafruit_NeoPixel.h>
 
-#define PIN            6
+#define NEOPIXELPIN            9
 #define NUMPIXELS      16
 
-Adafruit_NeoPixel pixels = Adafruit_NeoPixel(NUMPIXELS, PIN, NEO_GRB + NEO_KHZ800);
+Adafruit_NeoPixel pixels = Adafruit_NeoPixel(NUMPIXELS, NEOPIXELPIN, NEO_GRB + NEO_KHZ800);
 
 struct led
 {
-	byte r;
-	byte g;
-	byte b;
+  byte r;
+  byte g;
+  byte b;
 };
-	
+  
 const int maxColorValue = 255;
 const int minColorValue = 10;
 const int globalBrightness = 30;
-	
+
+const int neopixelPower = 7;
+const int redButton = 3;
+const int yellowButton = 2;
+const int toggle = 4;
+  
 void setup()
 {
-	Serial.begin(9600);
-	pixels.begin(); 
-	randomSeed(analogRead(0));
+  Serial.begin(9600);
+  pixels.begin(); 
+  blankPixels();
+  randomSeed(analogRead(0));
+  pinMode(toggle, INPUT);
+  pinMode(redButton, INPUT);
+  pinMode(yellowButton, INPUT);
 }
 
-byte currentTask = 3;
+void blankPixels()
+{
+	for(int i = 0; i< NUMPIXELS; i++)
+    {
+		pixels.setPixelColor(i, pixels.Color(0,0,0)); 
+	}
+  
+  pixels.setBrightness(0);
+  pixels.show(); 
+}
+
+bool redButtonPressed = false;
+byte MAXTASKS = 6;
+byte currentTask = 0;
+byte oldTask = 0;
 void loop()
 {
-	switch (currentTask) {
+	checkDirection();
+	checkYellowButton();
+	checkRedButton();
+	
+  switch (currentTask) 
+  {
     case 1:
-		doNothing();
+	randomColorsAndSpin();
+      break;
+    case 2:
+	pulseRed();
+      break;
+    case 3:
+	randomColorsForAllLeds();
+      break;
+    case 4:
+	pulseRandomColor();
+      break;
+    case 5:
+	pulseBlue();
+      break;
+    case 6:
+	pulseGreen();
       break;
     default: 
-      doNothing();
+	if(redButtonPressed)
+	{
+	setAllPixelsToColor();
+	}
+	else
+	{
+      spin();
+	 }
   }
-  
-  setGlobalColorWithControls();
-  spin();
+  currentTask = 0;
+
 }
 
-void doNothing()
-{
-	
-}
 
 byte randomColor()
 {
   return random(minColorValue, maxColorValue);
 }
 
-const int redPin = A2;
-const int greenPin = A3;
-const int bluePin = A4;
+const int redPin = A1;
+const int greenPin = A2;
+const int bluePin = A3;
 
 
-void controlColorTest()
+void setAllPixelsToColor()
 {
-	int redVal = analogRead(redPin);
-	int greenVal = analogRead(greenPin);
-	int blueVal = analogRead(bluePin);
+  int redVal = analogRead(redPin);
+  int greenVal = analogRead(greenPin);
+  int blueVal = analogRead(bluePin);
 
-	int setRed = map(redVal, 0, 1023, minColorValue, maxColorValue);
-	int setBlue = map(blueVal, 0, 1023, minColorValue, maxColorValue);
-	int setGreen = map(greenVal, 0, 1023, minColorValue, maxColorValue);
-	
-	for(int i = 0; i< NUMPIXELS; i++)
-	{
-		pixels.setPixelColor(i, pixels.Color(setRed,setGreen,setBlue)); 
-	}
-	
-	pixels.setBrightness(globalBrightness);
-	pixels.show(); 
+  int setRed = map(redVal, 0, 1023, minColorValue, maxColorValue);
+  int setBlue = map(blueVal, 0, 1023, minColorValue, maxColorValue);
+  int setGreen = map(greenVal, 0, 1023, minColorValue, maxColorValue);
+  
+  for(int i = 0; i< NUMPIXELS; i++)
+  {
+    pixels.setPixelColor(i, pixels.Color(setRed,setGreen,setBlue)); 
+  }
+  
+  pixels.setBrightness(globalBrightness);
+  pixels.show(); 
 }
 
 led globalColor;
 
 void setGlobalColorWithControls()
 {
-	int redVal = analogRead(redPin);
-	int greenVal = analogRead(greenPin);
-	int blueVal = analogRead(bluePin);
+  int redVal = analogRead(redPin);
+  int greenVal = analogRead(greenPin);
+  int blueVal = analogRead(bluePin);
 
-	globalColor.r = map(redVal, 0, 1023, minColorValue, maxColorValue);
-	globalColor.b = map(blueVal, 0, 1023, minColorValue, maxColorValue);
-	globalColor.g = map(greenVal, 0, 1023, minColorValue, maxColorValue);
+  globalColor.r = map(redVal, 0, 1023, minColorValue, maxColorValue);
+  globalColor.b = map(blueVal, 0, 1023, minColorValue, maxColorValue);
+  globalColor.g = map(greenVal, 0, 1023, minColorValue, maxColorValue);
 }
 
 //*******************************************
 // Spin Control
 //*******************************************
 
-const int speedPin = A5;
+const int speedPin = A0;
 int direction = 1;
 int lastPosition = 0;
 const int minSpeed = 0;
@@ -100,77 +145,130 @@ const int fastest = 20;
 unsigned long previousTime = 0;
 void spin()
 {
-	unsigned long currentTime = millis();
-	
-	int speedVal = analogRead(bluePin);
-	int moveTime = map(speedVal, 0, 1023, slowest, fastest);
-        Serial.println(moveTime);
-		
-	for(int i = 0; i< NUMPIXELS; i++)
-	{
-		pixels.setPixelColor(i, pixels.Color(0,0,0)); 
-	}
-	
-	pixels.setPixelColor(lastPosition, pixels.Color(globalColor.r,globalColor.g,globalColor.b)); 
+  setGlobalColorWithControls();
+  unsigned long currentTime = millis();
+  
+  int speedVal = analogRead(speedPin);
+  int moveTime = map(speedVal, 0, 1023, slowest, fastest);
+    
+  for(int i = 0; i< NUMPIXELS; i++)
+  {
+    pixels.setPixelColor(i, pixels.Color(0,0,0)); 
+  }
+  
+  pixels.setPixelColor(lastPosition, pixels.Color(globalColor.r,globalColor.g,globalColor.b)); 
 
     pixels.setBrightness(globalBrightness);
-	pixels.show(); 
-	
-	if(currentTime - previousTime > moveTime && moveTime != slowest)
-	{
-		previousTime = currentTime;
-		lastPosition += direction;
-		if(lastPosition >= NUMPIXELS || lastPosition < 0)
-		{
-			lastPosition -= (NUMPIXELS * direction);
-		}
-	}
+  pixels.show(); 
+  
+  if(currentTime - previousTime > moveTime && moveTime != slowest)
+  {
+    previousTime = currentTime;
+    lastPosition += direction;
+    if(lastPosition >= NUMPIXELS || lastPosition < 0)
+    {
+      lastPosition -= (NUMPIXELS * direction);
+    }
+  }
 }
+
+void checkDirection()
+{
+ if(digitalRead(toggle) == LOW)
+ {
+    direction = 1;
+  }else
+  {
+    direction = -1;
+  }
+}
+
+bool yellowButtonPressed = false;
+bool oldYellowButtonValue = false;
+
+void checkYellowButton()
+{
+ if(digitalRead(yellowButton) == LOW)
+ {
+   yellowButtonPressed = false;
+   oldYellowButtonValue = false;
+  }else
+  {
+   yellowButtonPressed = true;
+   if(!oldYellowButtonValue)
+   {
+		oldYellowButtonValue = true;
+		//Do random selection of task
+		oldTask++;
+		if(oldTask > MAXTASKS)
+		{
+			oldTask = 1;
+		}
+		currentTask = oldTask;
+		
+	}
+  }
+}
+
+
+
+void checkRedButton()
+{
+ if(digitalRead(redButton) == LOW)
+ {
+   redButtonPressed = false;
+  }
+else
+  {
+   redButtonPressed = true;
+  }
+  }
+
 
 //*******************************************
 // Random Colors and Spin
 //*******************************************
 
 const int ledsToLight = 8;
-const int timesToSpin = 2;
+const int timesToSpin = 5;
 const int delayDuringRandomColorsSpin = 100;
 
 void randomColorsAndSpin()
 {
-	led leds[NUMPIXELS];
-	for(int i = 0; i< NUMPIXELS; i++)
-	{
-		if(i <= ledsToLight)
-		{
-			leds[i].r = randomColor();
-			leds[i].g = randomColor();
-			leds[i].b = randomColor();
-		}
-		else
-		{
-			leds[i].r = leds[i].g = leds[i].b = 0;
-		}
-	}
-	for(int spin = 0; spin <timesToSpin; spin++)
-	{
-		for(int i = 0; i< NUMPIXELS; i++)
-		{
-			for(int j = 0; j< NUMPIXELS; j++)
-			{
-				int pixel = j - i;
-				if(pixel < 0)
-				{
-					pixel += NUMPIXELS;
-				}
-				
-				pixels.setPixelColor(pixel, pixels.Color(leds[j].r,leds[j].g,leds[j].b)); 
-			}
-			
-			pixels.setBrightness(globalBrightness);
-			pixels.show(); 
-			delay(delayDuringRandomColorsSpin); 
-		}
-	}
+  led leds[NUMPIXELS];
+  for(int i = 0; i< NUMPIXELS; i++)
+  {
+    if(i <= ledsToLight)
+    {
+      leds[i].r = randomColor();
+      leds[i].g = randomColor();
+      leds[i].b = randomColor();
+    }
+    else
+    {
+      leds[i].r = leds[i].g = leds[i].b = 0;
+    }
+  }
+  for(int spin = 0; spin <timesToSpin; spin++)
+  {
+    for(int i = 0; i< NUMPIXELS; i++)
+    {
+      for(int j = 0; j< NUMPIXELS; j++)
+      {
+        int pixel = j - i;
+        if(pixel < 0)
+        {
+          pixel += NUMPIXELS;
+        }
+        
+        pixels.setPixelColor(pixel, pixels.Color(leds[j].r,leds[j].g,leds[j].b)); 
+      }
+      
+      pixels.setBrightness(globalBrightness);
+      pixels.show(); 
+      delay(delayDuringRandomColorsSpin); 
+    }
+  }
 }
 
 
@@ -179,23 +277,23 @@ void randomColorsAndSpin()
 // Cycling Random Colors on all LEDS 
 //*******************************************
 
-const int totalCycles = 5;
+const int totalCycles = 20;
 const int timeBetweenCycles = 100;
 
 void randomColorsForAllLeds()
 {
-	for(int count = 0; count < totalCycles; count++)
-	{
-		for(int i = 0; i< NUMPIXELS; i++)
-		{
-			pixels.setPixelColor(i, pixels.Color(randomColor(),randomColor(),randomColor())); 
-		}
-		
-		pixels.setBrightness(globalBrightness);
-		pixels.show(); 
-		
-		delay(timeBetweenCycles); 
-	}
+  for(int count = 0; count < totalCycles; count++)
+  {
+    for(int i = 0; i< NUMPIXELS; i++)
+    {
+      pixels.setPixelColor(i, pixels.Color(randomColor(),randomColor(),randomColor())); 
+    }
+    
+    pixels.setBrightness(globalBrightness);
+    pixels.show(); 
+    
+    delay(timeBetweenCycles); 
+  }
 }
 
 
@@ -212,76 +310,76 @@ const int stepDelay = 50;
 
 void pulseRed()
 {
-	byte red = maxColorValue;
-	byte green = 0;
-	byte blue = 0;
-	
-	pulse(red, green, blue);
+  byte red = maxColorValue;
+  byte green = 0;
+  byte blue = 0;
+  
+  pulse(red, green, blue);
 }
 
 void pulseGreen()
 {
-	byte red = 0;
-	byte green = maxColorValue;
-	byte blue = 0;
-	
-	pulse(red, green, blue);
+  byte red = 0;
+  byte green = maxColorValue;
+  byte blue = 0;
+  
+  pulse(red, green, blue);
 }
 
 void pulseBlue()
 {
-	byte red = 0;
-	byte green = 0;
-	byte blue = maxColorValue;
-	
-	pulse(red, green, blue);
+  byte red = 0;
+  byte green = 0;
+  byte blue = maxColorValue;
+  
+  pulse(red, green, blue);
 }
 
 void pulseRandomColor()
 {
-	byte red = randomColor();
-	byte green = randomColor();
-	byte blue = randomColor();
-	
-	pulse(red, green, blue);
+  byte red = randomColor();
+  byte green = randomColor();
+  byte blue = randomColor();
+  
+  pulse(red, green, blue);
 }
 
 void pulse(byte red, byte green, byte blue)
-{			
-	for(int i = 0; i < totalPulses; i++)
-	{	
-		//Pulse out
-		int currentBrightness = minBrightness;
-		while(currentBrightness <= maxBrightness)
-		{
-			for(int i = 0; i< NUMPIXELS; i++)
-			{
-				pixels.setPixelColor(i, pixels.Color(red,green,blue)); 
-			}
-			pixels.setBrightness(currentBrightness);
-			pixels.show(); 
-			
-			delay(stepDelay); 
-			
-			currentBrightness += steps;
-		}
-		
-		//Pulse in
-		currentBrightness = maxBrightness;
-		while(currentBrightness >= minBrightness)
-		{
-			for(int i = 0; i< NUMPIXELS; i++)
-			{
-				pixels.setPixelColor(i, pixels.Color(red,green,blue)); 
-			}
-			pixels.setBrightness(currentBrightness);
-			pixels.show(); 
-			
-			delay(stepDelay); 
-			
-			currentBrightness -= steps;
-		}	
-	}
+{     
+  for(int i = 0; i < totalPulses; i++)
+  { 
+    //Pulse out
+    int currentBrightness = minBrightness;
+    while(currentBrightness <= maxBrightness)
+    {
+      for(int i = 0; i< NUMPIXELS; i++)
+      {
+        pixels.setPixelColor(i, pixels.Color(red,green,blue)); 
+      }
+      pixels.setBrightness(currentBrightness);
+      pixels.show(); 
+      
+      delay(stepDelay); 
+      
+      currentBrightness += steps;
+    }
+    
+    //Pulse in
+    currentBrightness = maxBrightness;
+    while(currentBrightness >= minBrightness)
+    {
+      for(int i = 0; i< NUMPIXELS; i++)
+      {
+        pixels.setPixelColor(i, pixels.Color(red,green,blue)); 
+      }
+      pixels.setBrightness(currentBrightness);
+      pixels.show(); 
+      
+      delay(stepDelay); 
+      
+      currentBrightness -= steps;
+    } 
+  }
 }
 
 /*
