@@ -76,6 +76,9 @@ void loop()
   case 7:
     pulseGreen();
     break;
+  case 8:
+    drops();
+    break;
   default:
     if (redButtonPressed)
     {
@@ -442,3 +445,39 @@ void quarterSpin()
     }
   }
 }
+
+
+//*******************************************
+// 2 drops - start at top and have 2 pixels "fall" down either side and back up again a few times
+//*******************************************
+
+const int delayDuringDrops = 200;
+const int dropRounds = 2;
+
+void drops()
+{
+  led colour;
+  colour.r = maxColorValue;
+  colour.g = 0;
+  colour.b = 0;
+
+  pixels.setPixelColor(pixel, pixels.Color(colour.r, colour.g, colour.b));
+
+  pixels.setBrightness(globalBrightness);
+  pixels.show();
+
+  for(int i = 0; i<dropRounds; i++)
+  {
+    for(int left = 16, int right = 0; left<NUMPIXELS; left--, right++)
+    {
+        int leftPixel = (left == 16) ? 0 : left;
+        pixels.setPixelColor(leftPixel, pixels.Color(colour.r, colour.g, colour.b));
+        pixels.setPixelColor(right, pixels.Color(colour.r, colour.g, colour.b));
+
+        pixels.setBrightness(globalBrightness);
+        pixels.show();
+        delay(delayDuringDrops);
+    }
+  }
+}
+
