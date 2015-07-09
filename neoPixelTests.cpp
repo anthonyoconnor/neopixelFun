@@ -86,6 +86,58 @@ void loop()
   currentTask = 0;
 }
 
+void checkDirection()
+{
+  if (digitalRead(toggle) == LOW)
+  {
+    direction = 1;
+  }
+  else
+  {
+    direction = -1;
+  }
+}
+
+bool yellowButtonPressed = false;
+bool oldYellowButtonValue = false;
+
+void checkYellowButton()
+{
+  if (digitalRead(yellowButton) == LOW)
+  {
+    yellowButtonPressed = false;
+    oldYellowButtonValue = false;
+  }
+  else
+  {
+    yellowButtonPressed = true;
+    if (!oldYellowButtonValue)
+    {
+      oldYellowButtonValue = true;
+
+      oldTask++;
+      if (oldTask > MAXTASKS)
+      {
+        oldTask = 1;
+      }
+      currentTask = oldTask;
+    }
+  }
+}
+
+
+void checkRedButton()
+{
+  if (digitalRead(redButton) == LOW)
+  {
+    redButtonPressed = false;
+  }
+  else
+  {
+    redButtonPressed = true;
+  }
+}
+
 
 byte randomColor()
 {
@@ -173,58 +225,6 @@ void spin()
   }
 }
 
-void checkDirection()
-{
-  if (digitalRead(toggle) == LOW)
-  {
-    direction = 1;
-  }
-  else
-  {
-    direction = -1;
-  }
-}
-
-bool yellowButtonPressed = false;
-bool oldYellowButtonValue = false;
-
-void checkYellowButton()
-{
-  if (digitalRead(yellowButton) == LOW)
-  {
-    yellowButtonPressed = false;
-    oldYellowButtonValue = false;
-  }
-  else
-  {
-    yellowButtonPressed = true;
-    if (!oldYellowButtonValue)
-    {
-      oldYellowButtonValue = true;
-
-      oldTask++;
-      if (oldTask > MAXTASKS)
-      {
-        oldTask = 1;
-      }
-      currentTask = oldTask;
-    }
-  }
-}
-
-
-
-void checkRedButton()
-{
-  if (digitalRead(redButton) == LOW)
-  {
-    redButtonPressed = false;
-  }
-  else
-  {
-    redButtonPressed = true;
-  }
-}
 
 
 //*******************************************
