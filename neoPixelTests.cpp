@@ -11,7 +11,7 @@ struct led
   byte g;
   byte b;
 };
-  
+
 const int maxColorValue = 255;
 const int minColorValue = 10;
 const int globalBrightness = 30;
@@ -20,7 +20,7 @@ const int neopixelPower = 7;
 const int redButton = 3;
 const int yellowButton = 2;
 const int toggle = 4;
-  
+
 void setup()
 {
   Serial.begin(9600);
@@ -35,9 +35,9 @@ void setup()
 void blankPixels()
 {
 	for(int i = 0; i< NUMPIXELS; i++)
-    {
-		pixels.setPixelColor(i, pixels.Color(0,0,0)); 
-	}
+  {
+    pixels.setPixelColor(i, pixels.Color(0,0,0)); 
+  }
   
   pixels.setBrightness(0);
   pixels.show(); 
@@ -56,34 +56,34 @@ void loop()
   switch (currentTask) 
   {
     case 1:
-	randomColorsAndSpin();
-      break;
+    randomColorsAndSpin();
+    break;
     case 2:
-	pulseRed();
-      break;
+    pulseRed();
+    break;
     case 3:
-	randomColorsForAllLeds();
-      break;
+    randomColorsForAllLeds();
+    break;
     case 4:
-	pulseRandomColor();
-      break;
+    pulseRandomColor();
+    break;
     case 5:
-	pulseBlue();
-      break;
+    pulseBlue();
+    break;
     case 6:
-	pulseGreen();
-      break;
+    pulseGreen();
+    break;
     default: 
-	if(redButtonPressed)
-	{
-	setAllPixelsToColor();
-	}
-	else
-	{
-      spin();
-	 }
+    if(redButtonPressed)
+    {
+     setAllPixelsToColor();
+   }
+   else
+   {
+    spin();
   }
-  currentTask = 0;
+}
+currentTask = 0;
 
 }
 
@@ -150,7 +150,7 @@ void spin()
   
   int speedVal = analogRead(speedPin);
   int moveTime = map(speedVal, 0, 1023, slowest, fastest);
-    
+  
   for(int i = 0; i< NUMPIXELS; i++)
   {
     pixels.setPixelColor(i, pixels.Color(0,0,0)); 
@@ -158,7 +158,7 @@ void spin()
   
   pixels.setPixelColor(lastPosition, pixels.Color(globalColor.r,globalColor.g,globalColor.b)); 
 
-    pixels.setBrightness(globalBrightness);
+  pixels.setBrightness(globalBrightness);
   pixels.show(); 
   
   if(currentTime - previousTime > moveTime && moveTime != slowest)
@@ -176,11 +176,11 @@ void checkDirection()
 {
  if(digitalRead(toggle) == LOW)
  {
-    direction = 1;
-  }else
-  {
-    direction = -1;
-  }
+  direction = 1;
+}else
+{
+  direction = -1;
+}
 }
 
 bool yellowButtonPressed = false;
@@ -192,22 +192,22 @@ void checkYellowButton()
  {
    yellowButtonPressed = false;
    oldYellowButtonValue = false;
-  }else
-  {
+ }else
+ {
    yellowButtonPressed = true;
    if(!oldYellowButtonValue)
    {
-		oldYellowButtonValue = true;
+    oldYellowButtonValue = true;
 		//Do random selection of task
-		oldTask++;
-		if(oldTask > MAXTASKS)
-		{
-			oldTask = 1;
-		}
-		currentTask = oldTask;
-		
-	}
-  }
+    oldTask++;
+    if(oldTask > MAXTASKS)
+    {
+     oldTask = 1;
+   }
+   currentTask = oldTask;
+   
+ }
+}
 }
 
 
@@ -217,12 +217,12 @@ void checkRedButton()
  if(digitalRead(redButton) == LOW)
  {
    redButtonPressed = false;
-  }
-else
-  {
+ }
+ else
+ {
    redButtonPressed = true;
-  }
-  }
+ }
+}
 
 
 //*******************************************
