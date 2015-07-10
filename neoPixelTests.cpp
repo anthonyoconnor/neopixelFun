@@ -30,6 +30,8 @@ void setup()
   pinMode(toggle, INPUT);
   pinMode(redButton, INPUT);
   pinMode(yellowButton, INPUT);
+
+  drops(1);
 }
 
 void blankPixels()
@@ -65,7 +67,7 @@ void loop()
     randomColorsForAllLeds();
     break;
   case 4:
-    pulseRandomColor();
+    drops(4);
     break;
   case 5:
     pulseBlue();
@@ -75,9 +77,6 @@ void loop()
     break;
   case 7:
     pulseGreen();
-    break;
-  case 8:
-    drops();
     break;
   default:
     if (redButtonPressed)
@@ -91,6 +90,8 @@ void loop()
   }
   currentTask = 0;
 }
+
+int direction = 1;
 
 void checkDirection()
 {
@@ -192,7 +193,7 @@ void setGlobalColorWithControls()
 //*******************************************
 
 const int speedPin = A0;
-int direction = 1;
+
 int lastPosition = 0;
 const int minSpeed = 0;
 const int maxSpeed = 0;
@@ -285,7 +286,7 @@ void randomColorsAndSpin()
 // Cycling Random Colors on all LEDS 
 //*******************************************
 
-const int totalCycles = 20;
+const int totalCycles = 40;
 const int timeBetweenCycles = 100;
 
 void randomColorsForAllLeds()
@@ -451,29 +452,35 @@ void quarterSpin()
 // 2 drops - start at top and have 2 pixels "fall" down either side and back up again a few times
 //*******************************************
 
-const int delayDuringDrops = 200;
-const int dropRounds = 2;
+const int delayDuringDrops = 100;
 
-void drops()
+void drops(int dropRounds)
 {
-  led colour;
-  colour.r = maxColorValue;
-  colour.g = 0;
-  colour.b = 0;
+  led colour1;
+  colour1.r = maxColorValue;
+  colour1.g = 0;
+  colour1.b = 0;
 
-  pixels.setPixelColor(pixel, pixels.Color(colour.r, colour.g, colour.b));
-
-  pixels.setBrightness(globalBrightness);
-  pixels.show();
+  led colour2;
+  colour2.r = 0;
+  colour2.g = 0;
+  colour2.b = maxColorValue;
 
   for(int i = 0; i<dropRounds; i++)
   {
-    for(int left = 16, int right = 0; left<NUMPIXELS; left--, right++)
+    for(int left = 16, right = 0; right<NUMPIXELS; left--, right++)
     {
+        blankPixelsNoShow();
         int leftPixel = (left == 16) ? 0 : left;
-        pixels.setPixelColor(leftPixel, pixels.Color(colour.r, colour.g, colour.b));
-        pixels.setPixelColor(right, pixels.Color(colour.r, colour.g, colour.b));
-
+        if(leftPixel == right)
+        {
+          pixels.setPixelColor(leftPixel, pixels.Color(0, maxColorValue, 0));         
+        }
+        else
+        {
+          pixels.setPixelColor(leftPixel, pixels.Color(colour1.r, colour1.g, colour1.b));
+          pixels.setPixelColor(right, pixels.Color(colour2.r, colour2.g, colour2.b));
+        }
         pixels.setBrightness(globalBrightness);
         pixels.show();
         delay(delayDuringDrops);
@@ -481,3 +488,10 @@ void drops()
   }
 }
 
+void blankPixelsNoShow()
+{
+  for (int i = 0; i< NUMPIXELS; i++)
+  {
+    pixels.setPixelColor(i, pixels.Color(0, 0, 0));
+  }
+}
